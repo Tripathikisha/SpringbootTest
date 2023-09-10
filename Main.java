@@ -1,16 +1,76 @@
 package org.example;
 
 // Press Shift twice to open the Search Everywhere dialog and type `show whitespaces`,
-// then press Enter. You can now see whitespace characters in your code.import com.sun.mail.util.logging.MailHandler;
+// then press Enter. You can now see whitespace characters in your code.
+
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
-        System.out.println("Starting to Send Mail..... ");
+        URL url = null;
+        HttpURLConnection connection = null;
+        int responseCode = 0;
+        String urlString = "https://api.chucknorris.io/jokes/random";
 
-        MailHandlerBase mailHandler = new MailHandlerBase();
-        mailHandler.sendMail();
+
+        try {
+            url = new URL(urlString);
+        } catch (MalformedURLException e) {
+            System.out.println("problem in URL");
+        }
+
+        //connection
+
+        try {
+            connection = (HttpURLConnection) url.openConnection();
+            responseCode = connection.getResponseCode();
+        } catch (Exception e) {
+            System.out.println("connection problem");
+        }
+
+        //extract information from the connection object:
+
+        if(responseCode == 200)
+        {
+            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            StringBuilder apiData = new StringBuilder();
+            String readLine = null;
+
+            while((readLine = in.readLine())!= null)
+            {
+                apiData.append(readLine);
+            }
+
+            //
+            try {
+                in.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            System.out.println(apiData.toString());
+            JSONObject jsonAPIResponse = new JSONObject(apiData.toString());
+
+//            System.out.println(jsonAPIResponse.get("categories"));
+//            System.out.println(jsonAPIResponse.get("icon_url"));
+//            System.out.println(jsonAPIResponse.get("id"));
+            System.out.println(jsonAPIResponse.get("value"));
+
+
+
+        }
+        else
+            System.out.println("API call could not be made!!!");
+
+
 
     }
-
 }
